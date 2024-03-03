@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { AtSign } from "lucide-react";
+import { User, Loader } from "lucide-react";
 import axios from "axios";
 import TextInput from "../TextInput/TextInput";
 import PasswordInput from "../PasswordInput/PasswordInput";
 
 const FORM_INITIAL_STATE = {
-  email: "",
+  username: "",
   password: "",
 };
 
 const FormLogin = ({ visibilityState, toggleForms }) => {
   const [formData, setFormData] = useState(FORM_INITIAL_STATE);
+  const [resMessage, setResMessage] = useState();
+  const [isWaitingRes, setIsWaitingRes] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,14 +20,18 @@ const FormLogin = ({ visibilityState, toggleForms }) => {
 
   const handleOnSubmit = (e) => {
     e.preventDefault();
+    setIsWaitingRes(true);
 
     axios
-      .post("http://localhost:8090/api/user/signin", formData)
+      .post("http://localhost:8090/api/authentication/signin", formData)
       .then((res) => {
-        console.log(res.data);
+        sessionStorage.setItem("token", res.data.accessToken);
+        setIsWaitingRes(false);
+        setResMessage();
       })
       .catch((err) => {
-        console.log(err.data.message);
+        setIsWaitingRes(false);
+        setResMessage(err?.response?.data.message);
       });
   };
 
@@ -37,12 +43,12 @@ const FormLogin = ({ visibilityState, toggleForms }) => {
     >
       <h2 className="text-2xl text-center mt-4 mb-8">LogIn</h2>
       <TextInput
-        name="email"
+        name="username"
         onChange={handleChange}
         value={formData.email}
-        type="email"
-        placeholder="Email"
-        icon={<AtSign className="text-gray-500" />}
+        type="text"
+        placeholder="Username"
+        icon={<User className="text-gray-500" />}
       />
 
       <PasswordInput
@@ -52,12 +58,21 @@ const FormLogin = ({ visibilityState, toggleForms }) => {
         placeholder="Password"
       />
 
-      <button className="w-11/12 h-10 rounded-full bg-purple-600 text-white">
-        LOGIN
+      <button
+        disabled={isWaitingRes}
+        className={`w-11/12 h-10 text-white rounded-full 
+          ${isWaitingRes ? "bg-purple-400 cursor-wait" : "bg-purple-600"}`}
+      >
+        {isWaitingRes ? (
+          <Loader className="animate-spin m-auto" />
+        ) : (
+          <span>LOGN IN</span>
+        )}
       </button>
       <p className="font-light underline cursor-pointer text-center text-gray-500">
         Forgot your password?
       </p>
+      <p className="mt-4 font-medium text-center text-red-600">{resMessage}</p>
       <div className="flex flex-col flex-grow justify-end">
         <p
           className="font-light cursor-pointer text-center text-gray-500"
