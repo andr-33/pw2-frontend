@@ -3,6 +3,7 @@ import { User, Loader } from "lucide-react";
 import axios from "axios";
 import TextInput from "../TextInput/TextInput";
 import PasswordInput from "../PasswordInput/PasswordInput";
+import { useNavigate } from "react-router-dom";
 
 const FORM_INITIAL_STATE = {
   username: "",
@@ -13,6 +14,7 @@ const FormLogin = ({ visibilityState, toggleForms }) => {
   const [formData, setFormData] = useState(FORM_INITIAL_STATE);
   const [resMessage, setResMessage] = useState();
   const [isWaitingRes, setIsWaitingRes] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,6 +30,7 @@ const FormLogin = ({ visibilityState, toggleForms }) => {
         sessionStorage.setItem("token", res.data.accessToken);
         setIsWaitingRes(false);
         setResMessage();
+        navigate("/home");
       })
       .catch((err) => {
         setIsWaitingRes(false);
