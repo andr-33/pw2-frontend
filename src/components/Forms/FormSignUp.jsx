@@ -3,12 +3,14 @@ import { AtSign, User, Loader } from "lucide-react";
 import axios from "axios";
 import TextInput from "../TextInput/TextInput";
 import PasswordInput from "../PasswordInput/PasswordInput";
+import RadioGroup from "../RadioGroup/RadioGroup";
 
 const FORM_INITIAL_STATE = {
   username: "",
   email: "",
   password: "",
   confirmPassword: "",
+  roles: [],
 };
 
 const FormSignUp = ({ visibilityState, toggleForms }) => {
@@ -16,17 +18,24 @@ const FormSignUp = ({ visibilityState, toggleForms }) => {
   const [resMessage, setResMessage] = useState();
   const [resStatus, setResStatus] = useState();
   const [isWaitingRes, setIsWaitingRes] = useState(false);
-  //const [isFormDataCorrect, setIsFormDataCorrect] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  /*const handlePasswordConfirmation = () => {
-    if (formData.password === formData.confirmPassword) {
-      setIsFormDataCorrect(true);
-    }
-  };*/
+  const handleAddRole = (value) => {
+    setFormData((prev) => {
+      const rolesUpdated = [...prev.roles, value];
+      return { ...prev, roles: rolesUpdated };
+    });
+  };
+
+  const handleRemoveRole = (value) => {
+    setFormData((prev) => {
+      const rolesUpdated = prev.roles.filter((role) => role != value);
+      return { ...prev, roles: rolesUpdated };
+    });
+  };
 
   const handleOnSubmit = (e) => {
     e.preventDefault();
@@ -74,6 +83,7 @@ const FormSignUp = ({ visibilityState, toggleForms }) => {
         placeholder="Email"
         icon={<AtSign className="text-gray-500" />}
       />
+      <RadioGroup addOption={handleAddRole} removeOption={handleRemoveRole} />
       <PasswordInput
         name="password"
         onChange={handleChange}

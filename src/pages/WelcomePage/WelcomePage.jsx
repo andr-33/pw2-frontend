@@ -1,13 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FormLogin from "../../components/Forms/FormLogin";
 import FormSignUp from "../../components/Forms/FormSignUp";
+import { useNavigate } from "react-router-dom";
 
 const WelcomePage = () => {
   const [isFormLoginShown, setIsFormLoginShown] = useState(true);
+  const navigate = useNavigate();
 
   const toggleForms = () => {
     setIsFormLoginShown((prev) => !prev);
   };
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+
+    if (token) {
+      navigate("/home");
+    }
+  }, []);
 
   return (
     <div className="bg-purple-200 w-full h-screen flex justify-center items-center">

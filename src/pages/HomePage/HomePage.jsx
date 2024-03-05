@@ -5,26 +5,30 @@ import { useEffect, useState } from "react";
 const HomePage = () => {
   const [content, setContent] = useState();
   const [errorMessage, setErrorMessage] = useState(null);
+  const [errorState, setErrorState] = useState(false);
 
   const handleFetchData = (contentType) => {
     axios
-      .get(`http://localhost:8090/api/test/${contentType}`,{
+      .get(`http://localhost:8090/api/test/${contentType}`, {
         headers: {
           "x-access-token": sessionStorage.getItem("token"),
-        }
+        },
       })
       .then((res) => {
         setContent(res.data);
-        setErrorMessage(null);
+        setErrorState(false);
       })
-      .catch((err) => setErrorMessage(err?.response?.data.message));
+      .catch((err) => {
+        setErrorMessage(err?.response?.data.message);
+        setErrorState(true);
+      });
   };
 
   useEffect(() => {
     axios
       .get("http://localhost:8090/api/test/all")
       .then((res) => setContent(res.data));
-  },[]);
+  }, []);
 
   return (
     <div className="w-full h-screen flex flex-row">
@@ -36,7 +40,7 @@ const HomePage = () => {
 
         <div className="flex flex-col pl-2 mt-4">
           <span
-            onClick={() =>handleFetchData("admin")}
+            onClick={() => handleFetchData("admin")}
             className="cursor-pointer text-lg transition-[font-size] text-white hover:text-xl hover:underline"
           >
             Admin content
@@ -54,21 +58,26 @@ const HomePage = () => {
             User content
           </span>
           <span
-            onClick={() =>handleFetchData("all")}
+            onClick={() => handleFetchData("all")}
             className="cursor-pointer text-lg transition-[font-size] text-white hover:text-xl hover:underline"
           >
             Public content
           </span>
-          
         </div>
       </section>
-      <section className="flex flex-1 justify-center items-center bg-slate-400 relative">
-        <div>{content}</div>
-        <div 
-         className="absolute bottom-0 right-0 rounded-md bg-red-300 text-white px-3 py-1 mb-5 mr-5 flex flex-row items-center"
+      <section className="flex flex-1 justify-center items-center bg-slate-400 relative overflow-hidden">
+        <div className="w-[500px] h-[400px] bg-slate-100 rounded-lg border border-gray-500 flex items-center justify-center">
+          <p className="font-bold">{content}</p>
+        </div>
+        <div
+          className={`absolute bottom-0 right-0 mb-5 transition-transform ease-in duration-200 ${
+            errorState ? "mr-5" : "translate-x-full"
+          }`}
         >
-          <AlertCircle className="w-5 h-5 mr-1" />
-          {errorMessage}
+          <div className="rounded-md bg-red-500 text-white px-3 py-1 flex flex-row items-center font-medium">
+            <AlertCircle className="w-5 h-5 mr-1" />
+            {errorMessage}
+          </div>
         </div>
       </section>
     </div>
